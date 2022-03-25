@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="2d56b389-2ee4-4713-ae6a-7e2cdf3d3433" name="CS3141 TSP Project" url="http://dev.techmeetstech.xyz">
+        <fileTransfer rootFolder="/home/techzrla/dev.techmeetstech.xyz" accessType="SFTP" host="server71.web-hosting.com" port="21098" sshConfigId="916b1934-3a76-4057-991f-5a69cf49eb99" sshConfig="techzrla@server71.web-hosting.com:21098 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
