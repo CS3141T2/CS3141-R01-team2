@@ -47,3 +47,12 @@ create table indivAttend(
     id int,
 	account_name varchar(30),
     foreign key (id) references indiv_event(id));
+create table interests(
+    user varchar(30),
+    interest char(15),
+    foreign key (user) references account(username));
+
+create table commInterests(
+    comm varchar(30),
+    interest char(15),
+    foreign key (comm) references community(name));
