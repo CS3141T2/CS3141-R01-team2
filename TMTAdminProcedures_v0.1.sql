@@ -10,14 +10,14 @@ begin
 insert into community values (name, leader);
 end //
 
-create procedure addCommunityEvent (organization varchar(30), location varchar(30), name varchar(50), type varchar(30), description TEXT)
+create procedure addCommunityEvent (organization varchar(30), date datetime, location varchar(30), name varchar(50), type varchar(30), description TEXT)
 begin
-insert into event(owner_id, location, name, type, description) values (organization, location, name, type, description);
+insert into event(owner_id, date, location, name, type, description) values (organization, date, location, name, type, description);
 end //
 
-create procedure addUserEvent (owner varchar(30), location varchar(30), name varchar(50), type varchar(30), description TEXT)
+create procedure addUserEvent (owner varchar(30), date datetime, location varchar(30), name varchar(50), type varchar(30), description TEXT, private boolean)
 begin
-insert into indiv_event(owner_id, location, name, type, description) values (owner, location, name, type, description);
+insert into indiv_event(owner_id, date, location, name, type, description, private) values (owner, date, location, name, type, description, private);
 end //
 
 create procedure addToCommunity (user varchar(30), community varchar(30))
