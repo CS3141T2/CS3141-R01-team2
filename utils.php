@@ -1,3 +1,4 @@
 <?php
 
-function numberSuffix()
+function numberSuffix(){};
+?>

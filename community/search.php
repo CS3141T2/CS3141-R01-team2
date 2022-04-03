@@ -23,7 +23,7 @@ if (isset($_POST["find"])) {
 
 /**
  * A function for building the table for search results
- * @param $db   Database connection
+ * @param $db   mysqli Database connection
  * @return void Table of search results, otherwise posts alert
  */
 

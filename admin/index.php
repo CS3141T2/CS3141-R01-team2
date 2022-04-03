@@ -9,6 +9,25 @@
 <?php
 include '/home/techzrla/tmt.php';
 session_start();
+// Validate login before proceeding.
+if(!isset($_SESSION["username"])) {
+    header("LOCATION: /login");
+    die();
+}
+else {
+    // Check that the user is an admin
+    $db = db();
+    $stmt = $db->prepare("SELECT * FROM account WHERE username = ? AND permission = 'admin'");
+    $stmt->bind_param("s", $_SESSION["username"]);
+    $stmt->execute();
+    if ($stmt->get_result()->num_rows == 0) {
+        header("LOCATION: /dashboard");
+        die();
+    }
+    else {
+        echo "<div class='alert alert-succes s'>Welcome to the admin dashboard!</div>";
+    }
+}
 print_r($_POST);
 // Table variable indicates what table to generate for the table generation function
 $table = null;
@@ -169,6 +188,7 @@ elseif (isset($_POST["8"])) {
                         <th>major</th>
                         <th>color</th>
                         <th>twitter_username</th>
+                        <th>permission</th>
                     </tr>
 
                 <?php
@@ -183,8 +203,9 @@ elseif (isset($_POST["8"])) {
                         <th>%s</th>
                         <th>%s</th>
                         <th>%s</th>
+                        <th>%s</th>
                     </tr>
-                    ', $row["username"], $row["phone"], $row["profile_description"], $row["year"], $row["major"], $row["color"], $row["twitter_username"]);
+                    ', $row["username"], $row["phone"], $row["profile_description"], $row["year"], $row["major"], $row["color"], $row["twitter_username"], $row["permission"]);
                 }
                 echo "<table>";
                 break;
