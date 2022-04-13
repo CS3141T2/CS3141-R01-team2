@@ -1,365 +1,90 @@
-<html>
-<style>
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-        background-color: whitesmoke;
-    }
-</style>
 <?php
 include '/home/techzrla/tmt.php';
+include 'utils.php';
 session_start();
-print_r($_POST);
-// Table variable indicates what table to generate for the table generation function
-$table = null;
 
-// Sets view to select a table (0) if $view was not set
-if (!isset($view)) {
-    $view = 0;
+// User is not logged in, go to login page
+if ($_SESSION['username'] == null) {
+    header("Location: /login");
+    die();
 }
-
-// Attempts to add a user to accounts using data input on the "manage accounts" page
-// Sets variables to head to the accounts page
-if (isset($_POST["addUser"])) {
-    $toInsert = $_POST["userToAdd"];
-    $view = 1;
-    $table = "account";
-    if ($toInsert == null) {
-        echo "User can't be null";
-    } else {
-        try {
-            $db = db();
-            $stmt = $db->prepare("INSERT INTO account(username) VALUES (?)");
-            $stmt->bind_param("s", $toInsert);
-            $stmt->execute();
-            echo "User added successfully";
-        } catch (Exception $e) {
-            echo 'Error: caught exception ', $e->getMessage(), '\n';
-        }
-    }
+// Else verify the use is an admin
+else if (isAdmin($_SESSION['username']) == false) {
+    header("LOCATION: /dashboard");
+    die();
 }
+?>
+<html>
+    <head>
+        <title>Admin Dashboard; Tech Meets Tech</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-// Similar functionality to adding user, but the SQL statement has changed to
-// remove from accounts.
-if (isset($_POST["removeUser"])) {
-    $toInsert = $_POST["userToRemove"];
-    $view = 1;
-    $table = "account";
-    if ($toInsert == null) {
-        echo "User can't be null";
-    } else {
-        try {
-            $db = db();
-            $stmt = $db->prepare("DELETE FROM account WHERE username=?");
-            $stmt->bind_param("s", $toInsert);
-            $stmt->execute();
-            echo "User removed successfully";
-        } catch (Exception $e) {
-            echo 'Error: caught exception ', $e->getMessage(), '\n';
-        }
-    }
-}
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500&display=swap">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <link rel="stylesheet" href="/home/techzrla/admin/style.css">
 
-// If the back button was pressed, load the navigation page
-if (isset($_POST["Back"])) {
-    $view = 0;
-}
-
-// If "Manage Accounts" was clicked, load the account management scripts.
-if (isset($_POST["1"])) {
-    $view = 1;
-    $table = "account";
-    echo "Done1";
-}
-
-// If "Manage Communities" was clicked, load the community management scripts.
-elseif (isset($_POST["2"])) {
-    $view = 2;
-    $table = "community";
-    echo "Done2";
-}
-
-// If "Manage Community Events" was clicked, load event management scripts.
-elseif (isset($_POST["3"])) {
-    $view = 3;
-    $table = "event";
-    echo "Done3";
-}
-
-// If "Manage Community Members" was clicked, load member management scripts.
-elseif (isset($_POST["4"])) {
-    $view = 4;
-    $table = "member";
-    echo "Done4";
-}
-
-// If "Manage User Events" was clicked, load user event management scripts.
-elseif (isset($_POST["5"])) {
-    $view = 5;
-    $table = "indiv_event";
-    echo "Done5";
-}
-
-// If "Manage User Friends" was clicked, load user friend management scripts.
-elseif (isset($_POST["6"])) {
-    $view = 6;
-    $table = "friend";
-    echo "Done6";
-}
-
-// Not Yet Implemented
-elseif (isset($_POST["7"])) {
-    $view = 7;
-    echo "Done7";
-}
-
-// If "Manage Interest List" was clicked, loads users and their interests.
-// Will be more directly tied to the survey in the future.
-elseif (isset($_POST["8"])) {
-    $view = 8;
-    $table = "interests";
-    echo "Done8";
-}
-
-// Loads the table select forms if $view == 0
-    if ($view == 0) {
-    ?>
-<form method="post" action="index.php">
-    <input type="submit" value="Manage Accounts" name="1">
-    <input type="submit" value="Manage Communities" name="2">
-    <input type="submit" value="Manage Community Events" name="3">
-    <input type="submit" value="Manage Community Members" name="4">
-</form>
-<form method="post" action="index.php">
-    <input type="submit" value="Manage User Events" name="5">
-    <input type="submit" value="Manage User Friends" name="6">
-    <input type="submit" value="Manage Survey Questions" name="7">
-    <input type="submit" value="Manage Interest List" name="8">
-</form>
-    <?php
-    } else {
-        // Loads the back button and figures out which script to run
-        ?>
-    <form action="index.php" method="post">
-    <input type="submit" value='Back' name='Back'>
-    </form>
-        <?php
-        switch ($view) {
-            // Account management script.
-            case 1:
-                echo "Add User:"
-                ?>
-                <form action="index.php" method="post">
-                      <input type="text" id="userToAdd" name="userToAdd">
-                      <input type="submit" value="Add User" name="addUser">
-                </form>
-                <?php
-                echo "Remove User:"
-                ?>
-                <form action="index.php" method="post">
-                    <input type="text" id="userToRemove" name="userToRemove">
-                    <input type="submit" value="Remove User" name="removeUser">
-                </form>
-                <table>
-                    <tr>
-                        <th>username</th>
-                        <th>phone</th>
-                        <th>profile_description</th>
-                        <th>year</th>
-                        <th>major</th>
-                        <th>color</th>
-                        <th>twitter_username</th>
-                    </tr>
-
-                <?php
-                $result = getAllFromTable($table);
-                while ($row = $result->fetch_assoc()) {
-                    echo sprintf('
-                    <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                    </tr>
-                    ', $row["username"], $row["phone"], $row["profile_description"], $row["year"], $row["major"], $row["color"], $row["twitter_username"]);
-                }
-                echo "<table>";
-                break;
-            case 2:
-                // Community management script
-                ?>
-                    <table>
-                        <tr>
-                            <th>name</th>
-                            <th>leader</th>
-                        </tr>
-
-                <?php
-                $result = getAllFromTable($table);
-                while ($row = $result->fetch_assoc()) {
-                    echo sprintf('
-                    <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                    </tr>
-                    ', $row["name"], $row["leader"]);
-                }
-                echo "<table>";
-                break;
-            case 3:
-                // Community event management script
-                ?>
-                <table>
-                    <tr>
-                        <th>id</th>
-                        <th>owner_id</th>
-                        <th>date</th>
-                        <th>location</th>
-                        <th>name</th>
-                        <th>type</th>
-                        <th>description</th>
-                    </tr>
-
-                <?php
-                $result = getAllFromTable($table);
-                while ($row = $result->fetch_assoc()) {
-                    echo sprintf('
-                    <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                    </tr>
-                    ', $row["id"], $row["owner_id"], $row["date"], $row["location"], $row["name"], $row["type"], $row["description"]);
-                }
-                echo "<table>";
-                break;
-                case 4:
-                    // Community member management script
-                ?>
-                <table>
-                    <tr>
-                        <th>entry_no</th>
-                        <th>account_name</th>
-                        <th>name</th>
-                    </tr>
-
-                <?php
-                $result = getAllFromTable($table);
-                while ($row = $result->fetch_assoc()) {
-                    echo sprintf('
-                    <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                    </tr>
-                    ', $row["entry_no"], $row["account_name"], $row["name"]);
-                }
-                echo "<table>";
-                break;
-                case 5:
-                    // User event management script
-                ?>
-                    <table>
-                        <tr>
-                            <th>id</th>
-                            <th>owner_id</th>
-                            <th>date</th>
-                            <th>location</th>
-                            <th>name</th>
-                            <th>type</th>
-                            <th>description</th>
-                        </tr>
-
-                        <?php
-                        $result = getAllFromTable($table);
-                        while ($row = $result->fetch_assoc()) {
-                            echo sprintf('
-                    <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                    </tr>
-                    ', $row["id"], $row["owner_id"], $row["date"], $row["location"], $row["name"], $row["type"], $row["description"]);
-                        }
-                        echo "<table>";
-                        break;
-                        case 6:
-                            // User friend management script.
-                        ?>
-                        <table>
-                            <tr>
-                                <th>friendID</th>
-                                <th>user1</th>
-                                <th>user2</th>
-                            </tr>
-
-                            <?php
-                            $result = getAllFromTable($table);
-                            while ($row = $result->fetch_assoc()) {
-                                echo sprintf('
-                    <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                    </tr>
-                    ', $row["friendID"], $row["user1"], $row["user2"]);
-                            }
-                            echo "<table>";
-                            break;
-                            case 8:
-                                // Interest management script
-                            ?>
-                            <table>
-                                <tr>
-                                    <th>user</th>
-                                    <th>interest</th>
-                                </tr>
-
-                                <?php
-                                $result = getAllFromTable($table);
-                                while ($row = $result->fetch_assoc()) {
-                                    echo sprintf('
-                                        <tr>
-                                            <th>%s</th>
-                                            <th>%s</th>
-                                        </tr>
-                                    ', $row["user"], $row["interest"]);
-                                }
-                                echo "<table>";
-                                break;
-
-        }
+        <!-- JS -->
 
 
+    </head>
+    <body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="dismiss">
+                <i class="fas fa-arrow-left"></i>
+            </div>
+            <ul class="list-unstyled menu-elements">
+                <li class="active">
+                    <a class="scroll-link" href="#top-content"><i class="fas fa-home"></i>Home</a>
+                </li>
+                <li>
+                    <a class="scroll-link" href="#section-1"><i class="fas fa-user"></i>Users and Accounts</a>
+                </li>
+                <li>
+                    <a class="scroll-link" href="#section-2"><i class="fas fa-users"></i>Community Events and Members</a>
+                </li>
+                <li>
+                    <a class="scroll-link" href="#section-3"><i class="fas fa-user-plus"></i>User Events and Friends</a>
+                </li>
+                <li>
+                    <a class="scroll-link" href="#section-4"><i class="fas fa-comment"></i>Survey Questions and Interests</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content">
 
-    }
+        </div>
+    </div>
+    <br><br>
+        <div class="container"  align="center" style="width=600px">
+            <h2>Welcome, Administrator!</h2>
+            <br>
+            <form action="admin_userEdit.php">
+                <button type="submit" class="btn btn-primary">Manage Accounts and Users</button>
+            </form>
+            <form action="admin_communityEdit.php">
+                <button type="submit" class="btn btn-primary">Manage Communities and Leaders</button>
+            </form>
+            <form action="admin_eventEdit.php">
+                <button type="submit" class="btn btn-primary">Manage Community Events</button>
+            </form>
+            <form action="admin_memberEdit.php">
+                <button type="submit" class="btn btn-primary">Manage Community Members</button>
+            </form>
+            <form action="admin_userEventEdit.php">
+                <button type="submit" class="btn btn-primary">Manage User Events</button>
+            </form>
+            <form action="index.php">
+                <button type="submit" class="btn btn-primary">Manage User Friends (NYI)</button>
+            </form>
+            <form action="admin_surveyEdit.php">
+                <button type="submit" class="btn btn-primary">Manage Survey Questions and Interests</button>
+            </form>
+        </div>
+    </body>
 
-
-    /**
-     * Generates a mysqli result that is used to populate a table in browser
-     * @param $table - A string that holds the table name
-     * @return false|mysqli_result
-     */
-function getAllFromTable($table) {
-        //connects to database
-        //retrieves data and displays
-        $db = db();
-        $sql = "SELECT * FROM $table";
-        $statement = $db->prepare($sql);
-        $statement->execute();
-        return $statement->get_result();
-}
-
-    ?>
 </html>

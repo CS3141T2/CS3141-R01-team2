@@ -1,5 +1,5 @@
 <?php
-include '/home/techzrla/tmt.php';
+include '../tmt.php';
 session_start();
 $db = db();
 
@@ -17,7 +17,7 @@ $result = $stmt->get_result();
 $preexisting = $result->fetch_assoc();
 
 // If POST parameters are set, assign data into database
-if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && isset($_POST["color"])) {
+if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && isset($_POST["color"]) && isset($_POST["twitter_username"])) {
 	$goodColor = "";
 	// Strip off the pound sign if they enter it.
 	if (substr($_POST["color"], 0, 1) == "#") {
@@ -25,21 +25,28 @@ if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && i
 	} else {
 		$goodColor = $_POST["color"];
 	}
-	$stmt = $db->prepare("UPDATE `account` SET major=?, year=?, profile_description=?, color=? WHERE username=?");
-	$stmt->bind_param("sisss", $_POST["major"], $_POST["year"], $_POST["bio"], $goodColor, $_SESSION["username"]);
+	$stmt = $db->prepare("UPDATE `account` SET major=?, year=?, profile_description=?, color=?, twitter_username=? WHERE username=?");
+	$stmt->bind_param("sissss", $_POST["major"], $_POST["year"], $_POST["bio"], $goodColor, $_POST["twitter_username"], $_SESSION["username"]);
 	$stmt->execute();
-	header("Location: /profile/full.php?username=" . $_SESSION["username"]); // Take them to their profile page
+	header("Location: /profile/index.php?username=" . $_SESSION["username"]); // Take them to their profile page
 	die();
 }
 ?>
 
-<html>
+<html lang="en-US">
 <head>
 	<?php echo head_goodies(); ?>
+	<style>
+		.submit-button {
+				max-width: 10em !important;
+		}
+	</style>
+	<title>Edit profile &mdash; Tech Meets Tech</title>
 </head>
+<body>
 <div class="container">
 	<h1>Edit your profile</h1>
-	<form method="post">
+	<form method="post" style="display: flex; flex-direction: column">
 		<div class="form-group">
 			<label>
 				Major:
@@ -68,10 +75,25 @@ if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && i
 						picker</a>.</small>
 			</label>
 		</div>
+		<hr>
+		<h3>Link your social media</h3>
+		<div class="form-group">
+			<label>
+				Twitter:
+				<div class="input-group mb-2 mr-sm-2">
+					<div class="input-group-prepend">
+						<div class="input-group-text">@</div>
+					</div>
+					<input class="form-control" name="twitter_username" type="text" maxlength="15" value="<?php echo $preexisting["twitter_username"]; ?>" placeholder="Username">
+				</div>
+			</label>
+		</div>
+		<hr>
 		<div class="form-group mt-3">
-			<input type="submit" class="btn btn-primary form-control" style="max-width: 7em;">
+			<?php echo mat_but_submit('', 'Submit', '', 'check', '', '', false); ?>
 		</div>
 	</form>
 </div>
+</body>
 </html>
 
