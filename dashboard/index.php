@@ -1,61 +1,77 @@
 <?php
-include '/home/techzrla/tmt.php';
+include '../sidebar.php';
 session_start();
 $db = db();
 
 // User not logged in, go to login page
 if ($_SESSION["username"] == null) {
-header("Location: /login");
-die();
+	header("Location: /login");
+	die();
 }
 
-echo "Dashboard goes here.";
+function recentEvents($db)
+{
+	$stmt = $db->prepare("SELECT name, type, date, location, id
+                          FROM event
+                          ORDER BY ts DESC
+                          LIMIT 15");
+	$stmt->execute();
+	$data = $stmt->get_result();
+
+	if ($data->num_rows > 0) {
+		echo '<table class="table table-bordered text-center">
+            <thead>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Date</th>
+            <th scope="col">Where</th>
+            <th scope="col">Sign Up</th>
+            </thead><tbody>';
+		while ($row = $data->fetch_assoc()) {
+			echo '<tr>';
+			echo '<td>' . $row["name"] . '</td>';
+			echo '<td>' . $row["type"] . '</td>';
+			echo '<td>' . substr($row["date"], 0, 10);
+			echo '</td>';
+			echo '<td>' . $row["location"] . '</td>';
+			echo '<td>-sign up button maybe-</td>';
+			echo '</tr>';
+		}
+		echo '</tbody></table>';
+	}
+}
 
 ?>
 
-<html>
-    <head>
-        <?php echo bootstrap(); ?>
-    </head>
-    <title>TechMeetsTech &mdash; Homepage</title>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<html lang="en-US">
+<head>
+	<?php
+	echo head_goodies();
+	echo sideBar($_SESSION["username"]);
+	?>
+	<title>Dashboard &mdash; Tech Meets Tech</title>
+</head>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Dropdown
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Disabled</a>
-                </li>
-            </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-        </div>
-    </nav>
-    <div>
-        <p>
-            this is some text holy shit
-        </p>
-    </div>
+<body>
+<div id="banner" style="background-image: url('/tmt6.jpg');background-size: cover; max-height: 200px">
+	<img src="/tmt_logo_white.png"
+	     style="max-width: 100%; max-height: 100%; display: block; margin: auto; filter: drop-shadow(5px 5px 5px #222);"
+	     alt="Tech Meets Tech logo">
+</div>
+<!-- Use any element to open the sidenav -->
+<span style="position: absolute;left: 10px;top: 5px" onclick="openNav()">
+	<button type="submit" class="mt-2 mdc-button mdc-button--raised tmt-button" value="open sidebar" id="add-btn"
+	        style="min-width: 0 !important; text-align: center">
+	  <div class="mdc-button__ripple"></div>
+	  <i class="material-icons mdc-button__icon" aria-hidden="true" style="margin: 0 !important;">menu</i>
+	</button>
+</span>
+<!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
+<div class="container">
+	<div id="recent events" style="text-align: center">
+		<h3> &mdash; Latest Events &mdash; </h3>
+	  <?php recentEvents($db); ?>
+	</div>
+</div>
+</body>
 </html>

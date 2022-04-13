@@ -2,8 +2,15 @@
 include '/home/techzrla/tmt.php';
 session_start();
 
-if (!isset($_SESSION["username"])) {
+// User is not logged in, redirect to login page
+if ($_SESSION["username"] == null) {
     header("LOCATION: /login");
+    die();
+}
+// Check if the user is an admin
+else if (isAdmin($_SESSION['username']) == false)
+{
+    header("LOCATION: /dashboard");
     die();
 } else {
     echo "Hello!";
