@@ -1,5 +1,6 @@
 <?php
-include '/home/techzrla/tmt.php';
+include '../tmt.php';
+include 'utils.php';
 $db = db();
 session_start();
 
@@ -12,7 +13,6 @@ if ($_SESSION["username"] != null) { // User is logged in, go to dashboard
 }
 
 if (isset($_POST["code"]) && isset($_SESSION["attempting_username"])) {
-
 	// Verify the given code is valid
 	$verifyCodeStmt = $db->prepare("SELECT * FROM Identities WHERE username=? AND login_code=?");
 	$verifyCodeStmt->bind_param("si", $_SESSION["attempting_username"], $_POST["code"]);
@@ -34,8 +34,16 @@ if (isset($_POST["code"]) && isset($_SESSION["attempting_username"])) {
 
 <html lang="en-US">
 <head>
-	<?php echo bootstrap(); ?>
+	<?php echo head_goodies(); ?>
 	<title>Verify Login &mdash; Tech Meets Tech</title>
+	<style>
+      .container {
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+	</style>
 </head>
 <body>
 <div class="container">
@@ -46,11 +54,9 @@ if (isset($_POST["code"]) && isset($_SESSION["attempting_username"])) {
 		<p>A unique code was sent to your email. Enter the code to login:</p>
 		<form method="post">
 			<label>
-				Login code:
-				<input class="form-control" type="text" name="code">
+				<input class="form-control" type="text" name="code" placeholder="Login code">
 			</label>
-			<br>
-			<input class="form-control btn btn-primary" type="submit" value="Submit" style="max-width: 7em; margin: 1em auto">
+			<?php echo mat_but_submit('', 'Log in', 'login', 'login', '', '', false); ?>
 		</form>
 	</div>
 </div>
