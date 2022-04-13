@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="80a06c05-196d-4d33-9b13-3af8eb3ed04a" name="TMT" url="http://dev.techmeetstech.xyz">
+        <fileTransfer rootFolder="/home/techzrla/dev.techmeetstech.xyz" accessType="SFTP" host="server71.web-hosting.com" port="21098" sshConfigId="f58252c1-fa91-4a67-af16-568ee85e750a" sshConfig="techzrla@server71.web-hosting.com:21098 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
