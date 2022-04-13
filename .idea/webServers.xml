@@ -2,8 +2,8 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="80a06c05-196d-4d33-9b13-3af8eb3ed04a" name="TMT" url="http://dev.techmeetstech.xyz">
-        <fileTransfer rootFolder="/home/techzrla/dev.techmeetstech.xyz" accessType="SFTP" host="server71.web-hosting.com" port="21098" sshConfigId="f58252c1-fa91-4a67-af16-568ee85e750a" sshConfig="techzrla@server71.web-hosting.com:21098 password">
+      <webServer id="2d56b389-2ee4-4713-ae6a-7e2cdf3d3433" name="CS3141 TSP Project" url="http://dev.techmeetstech.xyz">
+        <fileTransfer rootFolder="/home/techzrla/dev.techmeetstech.xyz" accessType="SFTP" host="server71.web-hosting.com" port="21098" sshConfigId="3dd8f0c8-0a2a-4a3b-9f40-966380ba4497" sshConfig="techzrla@server71.web-hosting.com:21098 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
