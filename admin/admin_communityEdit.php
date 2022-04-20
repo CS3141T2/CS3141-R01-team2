@@ -1,116 +1,162 @@
 <?php
-include '/home/techzrla/tmt.php';
+include '../tmt.php';
+include 'utils.php';
 session_start();
-$db = db();
 
 // User is not logged in, go to login page
-if ($_SESSION['username'] == null) {
-	header("Location: /login");
-	die();
-} else {
-	$db = db();
-	$perm = "admin";
-	$stmt = $db->prepare("SELECT * FROM account WHERE username = ? AND permission = ? ");
-	$stmt->bind_param("ss", $_SESSION['username'], $perm);
-	$stmt->execute();
-	if ($stmt->get_result()->num_rows == 0) {
-		header("Location: /dashboard");
-		die();
-	}
+if (!isset($_SESSION["username"])) {
+    header("Location: /login");
+    die();
+} // Else verify the use is an admin
+else if (isAdmin($_SESSION['username']) == false) {
+    header("LOCATION: /dashboard");
+    die();
 }
 ?>
-<html lang="en-US">
+<html>
 <head>
-	<title>Community Editor; Tech Meets Tech</title>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-
-	<!-- Bootstrap CSS -->
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-	      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
+    <?php echo head_goodies(); ?>
+    <title>Community Editor; Tech Meets Tech</title>
 </head>
 <body>
-<form action="index.php" method="post">
-	<input type="submit" value='Back' name='Back'>
-</form>
-<?php
-include 'utils.php';
-if (isset($_POST["addCommunity"])) {
-	$toInsert = $_POST["communityToAdd"];
-	$toInsert1 = $_POST["leaderToAdd"];
-	$view = 2;
-	$table = "community";
-	if ($toInsert == null) {
-		echo "Field can't be null";
-	} else {
-		try {
-			$db = db();
-			$stmt = $db->prepare("INSERT INTO community VALUES (?, ?)");
-			$stmt->bind_param("ss", $toInsert, $toInsert1);
-			$stmt->execute();
-			echo "Community statement executed without errors";
-		} catch (Exception $e) {
-			echo 'Error: caught exception ', $e->getMessage(), '\n';
-		}
-	}
-}
+<div class="container">
+    <div class="col text-center" style="margin: 1em auto;">
+        <h2>Manage Communities</h2>
+        <?php
+        // Add community
+        if (isset($_POST["addCommunity"])) {
+            $toInsert = $_POST["communityToAdd"];
+            $toInsert1 = $_POST["leaderToAdd"];
+            $view = 2;
+            $table = "community";
+            if ($toInsert == null || $toInsert1 == null) {
+                echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Fields can't be null</div>";
+            } else {
+                try {
+                    $db = db();
+                    $stmt = $db->prepare("INSERT INTO community VALUES (?, ?)");
+                    $stmt->bind_param("ss", $toInsert, $toInsert1);
+                    $stmt->execute();
+                    if ($stmt->affected_rows > 0) {
+                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>Community added</div>";
+                    } else {
+                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not add community</div>";
+                    }
+                } catch (Exception $e) {
+                    echo 'Error: caught exception ', $e->getMessage(), '\n';
+                }
+            }
+        }
+        // Remove community
+        if (isset($_POST["removeCommunity"])) {
+            $toInsert = $_POST["communityToRemove"];
+            $view = 2;
+            $table = "community";
+            if ($toInsert == null) {
+                echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Field can't be null</div>";
+            } else {
+                try {
+                    $db = db();
+                    $stmt = $db->prepare("DELETE FROM community WHERE name=?");
+                    $stmt->bind_param("s", $toInsert);
+                    $stmt->execute();
+                    if ($stmt->affected_rows > 0) {
+                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>Community deleted</div>";
+                    } else {
+                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not delete community</div>";
+                    }
+                } catch (Exception $e) {
+                    echo 'Error: caught exception ', $e->getMessage(), '\n';
+                }
+            }
+        }
 
-if (isset($_POST["removeCommunity"])) {
-	$toInsert = $_POST["communityToRemove"];
-	$view = 2;
-	$table = "community";
-	if ($toInsert == null) {
-		echo "Field can't be null";
-	} else {
-		try {
-			$db = db();
-			$stmt = $db->prepare("DELETE FROM community WHERE name=?");
-			$stmt->bind_param("s", $toInsert);
-			$stmt->execute();
-			echo "Community removal statement executed successfully";
-		} catch (Exception $e) {
-			echo 'Error: caught exception ', $e->getMessage(), '\n';
-		}
-	}
-}
+        ?>
 
-echo "Add Community + Leader:"
-?>
-<form action="admin_communityEdit.php" method="post">
-	<input type="text" id="communityToAdd" name="communityToAdd">
-	<input type="text" id="leaderToAdd" name="leaderToAdd">
-	<input type="submit" value="Add Community" name="addCommunity">
-</form>
-<?php
-echo "Remove Community:"
-?>
-<form action="admin_communityEdit.php" method="post">
-	<input type="text" id="communityToRemove" name="communityToRemove">
-	<input type="submit" value="Remove Community" name="removeCommunity">
-</form>
-<table class="table table-striped">
-	<thead class="thead-dark">
-	<tr>
-		<th>name</th>
-		<th>leader</th>
-	</tr>
-
-  <?php
-  $table = "community";
-  $result = getAllFromTable($table);
-  while ($row = $result->fetch_assoc()) {
-	  echo sprintf('
+        <form action="index.php" method="post">
+            <?php echo mat_but_submit('', 'Back', 'Back', 'keyboard_return', '', '', false); ?>
+        </form>
+    </div>
+    <div class="row text-center" style="margin: 1em auto">
+        <!-- Add community table -->
+        <div class="col text-center" style="max-width: 50em; margin: auto">
+            <h5>Adding Community:</h5>
+            <table class='table table-bordered text-center' id='table'>
+                <thead>
+                <tr>
+                    <th>Community name</th>
+                    <th>Community leader</th>
+                    <th>Submit</th>
+                </tr>
+                </thead>
+                <tbody>
+                <form method="post">
                     <tr>
-                        <th>%s</th>
-                        <th>%s</th>
+                        <td style="width: 35%;">
+                            <input type="text" id="communityToAdd" name="communityToAdd">
+                        </td>
+                        <td style="width: 35%;">
+                            <input type="text" id="leaderToAdd" name="leaderToAdd">
+                        </td>
+                        <td>
+                            <?php echo mat_but_submit('', 'Add Community', 'addCommunity', 'groups', '', '', false); ?>
+                        </td>
+                    </tr>
+                </form>
+                </tbody>
+            </table>
+        </div>
+        <!-- Remove community table -->
+        <div class="col text-center" style="max-width:30em; margin: auto">
+            <h5>Removing Communities:</h5>
+            <table class='table table-bordered text-center' id='table'>
+                <thead>
+                <tr>
+                    <th>Community Name</th>
+                    <th>Submit</th>
+                </tr>
+                </thead>
+                <tbody>
+                <form method="post">
+                    <tr>
+                        <td style="width: 50%;">
+                            <input type="text" id="communityToRemove" name="communityToRemove">
+                        </td>
+                        <td>
+                            <?php echo mat_but_submit('', 'Remove Community', 'removeCommunity', 'waving_hand', '', '', false); ?>
+                        </td>
+                    </tr>
+                </form>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Community table -->
+    <div class="col text-center" style="max-width: 50%; margin: 1em auto">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>name</th>
+                <th>leader</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <?php
+            $table = "community";
+            $result = getAllFromTable($table);
+            while ($row = $result->fetch_assoc()) {
+                echo sprintf('
+                    <tr>
+                        <td>%s</td>
+                        <td>%s</td>
                     </tr>
                     ', $row["name"], $row["leader"]);
-  }
-  echo "<table>";
-  ?>
-	</thead>
-</table>
+            }
+            ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>

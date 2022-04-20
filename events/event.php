@@ -1,9 +1,9 @@
 <?php
-include '../tmt.php';
+include '../sidebar.php';
 session_start();
 $db = db();
 
-if ($_SESSION['username'] == null) {
+if (!isset($_SESSION['username'])) {
 	header("Location: /login");
 	die();
 }
@@ -16,6 +16,16 @@ if (isset($_POST["indivEvent"])) {
 if (isset($_POST['commEvent'])) {
 	header("Location: /events/comm_event_create.php");
 	die();
+}
+
+if (isset($_POST["personalEvents"])) {
+    header("Location: /events/personal_events.php");
+    die();
+}
+
+if (isset($_POST["friendsEvents"])) {
+    header("Location: /events/friends_events.php");
+    die();
 }
 
 /**
@@ -31,7 +41,8 @@ function getAttendance(mysqli_result $attendList, $table): string
 	if ($attendList->num_rows > 0) {
 		while ($list = $attendList->fetch_assoc()) {
 			if (strcmp($table, "indivAttend") == 0) {
-				$string .= "<a class='dropdown-item' href='#'>" . $list["account_name"] . "</a>";
+                $accName = $list["account_name"];
+				$string .= "<a class='dropdown-item' href='/profile/index.php?username=$accName'>" . $list["account_name"] . "</a>";
 			} else {
 				$string .= "<a class='dropdown-item' href='#'>" . $list["username"] . "</a>";
 			}
@@ -44,14 +55,11 @@ function getAttendance(mysqli_result $attendList, $table): string
 function printTable($rows, $table, $db)
 {
 	$index = 1;
-	$currDate = strtotime("now");
 	while ($items = $rows->fetch_assoc()) {
-		$dateOfEvent = strtotime($items["date"]);
-		if ($dateOfEvent <= $currDate) {
-			continue;
-		}
 		$count = 0;
-		while ($count < 8) {
+        $date = substr($items["date"], 0, 10);
+        $time = substr($items["date"], 11, 5);
+		while ($count < 10) {
 			if ($count == 0) {
 				echo "<tr>";
 				echo "<th scope='row'>" . $index . "</th>";
@@ -61,22 +69,27 @@ function printTable($rows, $table, $db)
 				echo "<td>" . $items["owner_id"] . "</td>";
 			}
 			if ($count == 2) {
-				$date = substr($items["date"], 0, 10);
 				echo "<td>" . $date . "</td>";
 			}
-			if ($count == 3) {
+            if ($count == 3) {
+                echo "<td>" . $time . "</td>";
+            }
+			if ($count == 4) {
 				echo "<td>" . $items["location"] . "</td>";
 			}
-			if ($count == 4) {
+			if ($count == 5) {
 				echo "<td>" . $items["name"] . "</td>";
 			}
-			if ($count == 5) {
+			if ($count == 6) {
 				echo "<td>" . $items["type"] . "</td>";
 			}
-			if ($count == 6) {
+			if ($count == 7) {
 				echo "<td>" . $items["description"] . "</td>";
 			}
-			if ($count == 7) {
+            if ($count == 8) {
+                echo "<td>add button here</td>";
+            }
+			if ($count == 9) {
 				if (strcmp($table, "communityAttend") == 0) {
 					$attendListEvents = $db->prepare("SELECT username, id FROM communityAttend WHERE id=" . $items["id"]);
 				} else {
@@ -112,18 +125,25 @@ function printTable($rows, $table, $db)
 <!doctype html>
 <html lang="en-US">
 <head>
-	<?php echo head_goodies(); ?>
+	<?php
+    echo head_goodies();
+    echo sideBar($_SESSION["username"]);
+    ?>
 	<title>Events</title>
 </head>
 <body>
 <div class="container">
+    <?php sideBarButton(); ?>
 	<div class="col text-center" style="margin: 1em">
 		<h1>Events</h1>
 		<form method="post" action="event.php">
 			<div class="col text-center">
 		  <?php echo mat_but_submit('', 'Create Individual Event', 'indivEvent', 'person', '', '', false); ?>
 		  <?php echo mat_but_submit('', 'Create Community Event', 'commEvent', 'people', '', '', false); ?>
-			</div>
+			<br><br>
+          <?php echo mat_but_submit('', 'View Personal Events', 'personalEvents', 'people', '', '', false); ?>
+          <?php echo mat_but_submit('', 'View Friends Events', 'friendsEvents', 'people', '', '', false); ?>
+            </div>
 		</form>
 		<br>
 		<h2>Public Individual Events</h2>
@@ -135,17 +155,19 @@ function printTable($rows, $table, $db)
 				<th scope="col">Index</th>
 				<th scope="col">Creator</th>
 				<th scope="col">Date</th>
+                <th scope="col">Time</th>
 				<th scope="col">Location</th>
 				<th scope="col">Name</th>
 				<th scope="col">Type</th>
 				<th scope="col">Description</th>
+                <th scope="col">Attend Event</th>
 				<th scope="col">Attendees</th>
 			</tr>
 			</thead>
 			<tbody>
 	  <?php
 	  $indivEventsList = $db->prepare("SELECT id, owner_id, date, location, name, type, description FROM indiv_event 
-                                                                WHERE private=0");
+                                                                WHERE private=0 AND date > NOW() ORDER by date ASC");
 	  $indivEventsList->execute();
 	  $resultEventList = $indivEventsList->get_result();
 
@@ -167,16 +189,18 @@ function printTable($rows, $table, $db)
 				<th scope="col">Index</th>
 				<th scope="col">Community</th>
 				<th scope="col">Date</th>
+                <th scope="col">Time</th>
 				<th scope="col">Location</th>
 				<th scope="col">Name</th>
 				<th scope="col">Type</th>
 				<th scope="col">Description</th>
+                <th scope="col">Attend Event</th>
 				<th scope="col">Attendees</th>
 			</tr>
 			</thead>
 			<tbody>
 	  <?php
-	  $commEventsList = $db->prepare("SELECT id, owner_id, date, location, name, type, description FROM event");
+	  $commEventsList = $db->prepare("SELECT id, owner_id, date, location, name, type, description FROM event WHERE date > NOW() ORDER by date ASC");
 	  $commEventsList->execute();
 	  $resultCommEventList = $commEventsList->get_result();
 

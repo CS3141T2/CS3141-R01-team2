@@ -1,12 +1,27 @@
-<?php
+<?php /** @noinspection PhpUndefinedClassInspection */
 include '../tmt.php';
 include 'utils.php';
+require_once '../vendor/autoload.php';
+$config = parse_ini_file("/home/techzrla/creds.ini");
 session_start();
 $db = db();
 
 if ($_SESSION["username"] != null) { // User is logged in, go to dashboard
 	header("Location: /dashboard");
 	die();
+}
+
+// create Client Request to access Google API
+$client = new Google_Client();
+$client->setClientId($config["g_client_id"]);
+$client->setClientSecret($config["g_client_secret"]);
+$client->setRedirectUri($config["g_redirect_uri"]);
+$client->addScope("email");
+$client->addScope("profile");
+$client->setHostedDomain("mtu.edu");
+
+if (isset($_POST["login"])) {
+	header("Location: " . $client->createAuthUrl());
 }
 
 // User has asked for code, take them to code entry page
@@ -70,6 +85,7 @@ if (isset($_POST["username"])) {
           justify-content: center;
       }
 	</style>
+	<link href="/styles.css" rel="stylesheet" />
 </head>
 <div class="container">
 	<div class="row" id="content-row">
@@ -78,13 +94,13 @@ if (isset($_POST["username"])) {
 		<?php if ($_GET["error"]) {
 			echo "<div class='alert alert-danger'>" . $_GET["error"] . "</div>";
 		} ?>
-			<p>To login, please enter your Michigan Tech username:</p>
+			<p>Sign in with your Michigan Tech credentials.</p>
 			<form method="post" action="index.php">
-				<label>
-					<input class="form-control" type="text" name="username" placeholder="Username">
-				</label>
-		  <?php echo mat_but_submit('', 'Send login code', 'submit', 'send', '', '', false); ?>
+		    <?php echo mat_but_submit('', 'Michigan Tech Login', 'login', 'login', '', '', false); ?>
 			</form>
+			<p style="font-size: small; font-style: italic;">
+				If you are currently signed into your <code>@mtu.edu</code> via Google, you may be automatically signed in.
+			</p>
 		</div>
 	</div>
 </div>

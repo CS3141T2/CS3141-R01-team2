@@ -16,55 +16,51 @@ else if (isAdmin($_SESSION['username']) == false) {
 <html>
 <head>
     <?php echo head_goodies(); ?>
-    <title>Member Editor; Tech Meets Tech</title>
+    <title>Friend Editor; Tech Meets Tech</title>
 </head>
 <body>
 <div class="container">
     <div class="col text-center" style="margin: 1em auto;">
-        <h2>Manage Community Members</h2>
+        <h2>Manage Friends</h2>
         <?php
-        // Add member to community
-        if (isset($_POST["addMember"])) {
-            $toInsert = $_POST["memberToAdd"];
-            $toInsert1 = $_POST["toCommunity"];
-            $view = 4;
-            $table = "member";
+        // Add friends
+        if (isset($_POST["addFriends"])) {
+            $toInsert = $_POST["a_friend1"];
+            $toInsert1 = $_POST["a_friend2"];
             if ($toInsert == null || $toInsert1 == null) {
                 echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Fields can't be null</div>";
             } else {
                 try {
                     $db = db();
-                    $stmt = $db->prepare("INSERT INTO member(account_name, name) VALUES (?, ?)");
+                    $stmt = $db->prepare("INSERT INTO friend(user1, user2) VALUES (?, ?)");
                     $stmt->bind_param("ss", $toInsert, $toInsert1);
                     $stmt->execute();
                     if ($stmt->affected_rows > 0) {
-                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>Member added</div>";
+                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>Friends added</div>";
                     } else {
-                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not add member</div>";
+                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not add friends</div>";
                     }
                 } catch (Exception $e) {
                     echo 'Error: caught exception ', $e->getMessage(), '\n';
                 }
             }
         }
-        // Remove member to community
-        if (isset($_POST["removeMember"])) {
-            $toInsert = $_POST["memberToRemove"];
-            $toInsert1 = $_POST["fromCommunity"];
-            $view = 4;
-            $table = "member";
-            if ($toInsert == null) {
-                echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Field can't be null</div>";
+        // Remove friends
+        if (isset($_POST["removeFriends"])) {
+            $toRemove = $_POST["r_friend1"];
+            $toRemove1 = $_POST["r_friend2"];
+            if ($toRemove == null || $toRemove1 == null) {
+                echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Fields can't be null</div>";
             } else {
                 try {
                     $db = db();
-                    $stmt = $db->prepare("DELETE FROM member WHERE account_name=? AND name=?");
-                    $stmt->bind_param("ss", $toInsert, $toInsert1);
+                    $stmt = $db->prepare("DELETE FROM friend WHERE user1 = ? and user2 = ?");
+                    $stmt->bind_param("ss", $toRemove, $toRemove1);
                     $stmt->execute();
                     if ($stmt->affected_rows > 0) {
-                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>Member removed</div>";
+                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>Friends removed</div>";
                     } else {
-                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not remove member</div>";
+                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not remove friends</div>";
                     }
                 } catch (Exception $e) {
                     echo 'Error: caught exception ', $e->getMessage(), '\n';
@@ -78,74 +74,72 @@ else if (isAdmin($_SESSION['username']) == false) {
             <?php echo mat_but_submit('', 'Back', 'Back', 'keyboard_return', '', '', false); ?>
         </form>
     </div>
-    <!-- Add member table -->
+    <!-- Add friends table -->
     <div class="col text-center" style="max-width: 50%; margin: auto">
-        <h5>Adding Members:</h5>
+        <h5>Adding Friends:</h5>
         <table class='table table-bordered text-center' id='table'>
             <thead>
             <tr>
-                <th>User</th>
-                <th>Community</th>
+                <th>Friend 1</th>
+                <th>Friend 2</th>
                 <th>Submit</th>
             </tr>
             </thead>
-            <tbody>
             <form method="post">
                 <tr>
                     <td>
-                        <input type="text" id="memberToAdd" name="memberToAdd">
+                        <input type="text" id="a_friend1" name="a_friend1">
                     </td>
                     <td>
-                        <input type="text" id="toCommunity" name="toCommunity">
+                        <input type="text" id="a_friend2" name="a_friend2">
                     </td>
-                    <td style="width: 33%">
-                        <?php echo mat_but_submit('', 'Add member', 'addMember', 'person_add', '', '', false); ?>
+                    <td>
+                        <?php echo mat_but_submit('', 'Add friends', 'addFriends', 'person_add_alt', '', '', false); ?>
                     </td>
                 </tr>
             </form>
             </tbody>
         </table>
     </div>
-    <!-- Remove member table -->
-    <div class="col text-center" style="max-width:50%; margin: auto">
-        <h5>Removing Members:</h5>
+    <!-- Remove friends table -->
+    <div class="col text-center" style="max-width: 50%; margin: auto">
+        <h5>Removing Friends:</h5>
         <table class='table table-bordered text-center' id='table'>
             <thead>
             <tr>
-                <th>User</th>
-                <th>Community</th>
+                <th>Friend 1</th>
+                <th>Friend 2</th>
                 <th>Submit</th>
             </tr>
             </thead>
-            <tbody>
             <form method="post">
                 <tr>
                     <td>
-                        <input type="text" id="memberToRemove" name="memberToRemove">
+                        <input type="text" id="r_friend1" name="r_friend1">
                     </td>
                     <td>
-                        <input type="text" id="fromCommunity" name="fromCommunity">
+                        <input type="text" id="r_friend2" name="r_friend2">
                     </td>
-                    <td style="width: 33%">
-                        <?php echo mat_but_submit('', 'Remove member', 'removeMember', 'person_remove', '', '', false); ?>
+                    <td>
+                        <?php echo mat_but_submit('', 'Remove friends', 'removeFriends', 'person_remove', '', '', false); ?>
                     </td>
                 </tr>
             </form>
             </tbody>
         </table>
     </div>
-    <!-- member table -->
+    <!-- friend table -->
     <div class="col text-center" style="max-width: 50%; margin: 1em auto">
         <table class="table table-striped">
             <thead class="thead-dark">
             <tr>
-                <th>account_name</th>
-                <th>name</th>
+                <th>user1</th>
+                <th>user2</th>
             </tr>
             </thead>
             <tbody>
             <?php
-            $table = "member";
+            $table = "friend";
             $result = getAllFromTable($table);
             while ($row = $result->fetch_assoc()) {
                 echo sprintf('
@@ -153,7 +147,7 @@ else if (isAdmin($_SESSION['username']) == false) {
                         <td>%s</td>
                         <td>%s</td>
                     </tr>
-                    ', $row["account_name"], $row["name"]);
+                    ', $row["user1"], $row["user2"]);
             }
             ?>
             </tbody>

@@ -1,5 +1,5 @@
 <?php
-include '../tmt.php';
+include '../sidebar.php';
 session_start();
 $db = db();
 
@@ -23,7 +23,7 @@ if ((($_POST["commName"]) != "") && (($_POST["nameEvent"]) != "") && (($_POST["t
 	$getAcctName->execute();
 	$result = $getAcctName->get_result();
 	if ($result->num_rows < 1) {
-		$_SESSION["errorOnCreate"] = "<div class='alert alert-warning' role='alert'>Must have an <a href='https://dev.techmeetstech.xyz/dashboard/' class='alert-link'>account</a> to create an individual event.</div>";
+		$_SESSION["errorOnCreate"] = "<div class='alert alert-warning' role='alert'>Must have an account to create an individual event.</div>";
 		header("Location: /events/error.php");
 		die();
 	}
@@ -34,14 +34,14 @@ if ((($_POST["commName"]) != "") && (($_POST["nameEvent"]) != "") && (($_POST["t
 	$getCommLeader->execute();
 	$commResult = $getCommLeader->get_result();
 	if ($commResult->num_rows < 1) {
-		$_SESSION["errorOnCreate"] = "<div class='alert alert-warning' role='alert'>Community does not exist. <a href='https://dev.techmeetstech.xyz/events/event.php' class='alert-link'>Back to event page.</a></div>";
+		$_SESSION["errorOnCreate"] = "<div class='alert alert-warning' role='alert'>Community does not exist.</div>";
 		header("Location: /events/error.php");
 		die();
 	}
 
 	$commLeader = $commResult->fetch_assoc();
 	if (strcmp($username, $commLeader["leader"]) != 0) {
-		$_SESSION["errorOnCreate"] = "<div class='alert alert-warning' role='alert'>Must be a community leader. <a href='https://dev.techmeetstech.xyz/events/event.php' class='alert-link'>Back to event page.</a></div>";
+		$_SESSION["errorOnCreate"] = "<div class='alert alert-warning' role='alert'>Must be a community leader.</div>";
 		header("Location: /events/error.php");
 		die();
 	}
@@ -56,9 +56,13 @@ if ((($_POST["commName"]) != "") && (($_POST["nameEvent"]) != "") && (($_POST["t
 
 <html lang="en-US">
 <head>
-	<?php echo head_goodies(); ?>
+	<?php
+    echo head_goodies();
+    echo sideBar($_SESSION["username"]);
+    ?>
 	<title>Events</title>
 </head>
+<?php sideBarButton(); ?>
 <div class="col text-center">
 	<h1>Create a Community Event</h1>
 	<form method="post" action="comm_event_create.php">
@@ -80,7 +84,7 @@ if ((($_POST["commName"]) != "") && (($_POST["nameEvent"]) != "") && (($_POST["t
 		</label>
 		<label>
 			Event Date:
-			<input class="form-control" type="date" name="date">
+			<input class="form-control" type="datetime-local" name="date">
 		</label>
 		<label>
 			Location:

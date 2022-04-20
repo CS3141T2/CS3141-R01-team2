@@ -1,5 +1,5 @@
 <?php
-include '../tmt.php';
+include '../sidebar.php';
 include 'utils.php';
 session_start();
 $db = db();
@@ -15,6 +15,11 @@ if (isset($_POST["edit"])) {
 	die();
 }
 
+if (isset($_POST["friend"])) {
+    header("Location: /profile/addFriend.php");
+    die();
+}
+
 // If the username isn't specified, just look at our own page.
 $visiting = $_GET["username"] ?? $_SESSION["username"];
 $user_info = getUserInfo($db, $visiting);
@@ -22,7 +27,10 @@ $user_info = getUserInfo($db, $visiting);
 
 <html lang="en-US">
 <head>
-	<?php echo head_goodies(); ?>
+	<?php
+    echo head_goodies();
+    echo sideBar($_SESSION["username"]);
+    ?>
 	<title><?php if ($user_info != null) {
 		  echo $user_info["name"] . " &mdash; ";
 	  } ?>Tech Meets Tech</title>
@@ -34,6 +42,7 @@ $user_info = getUserInfo($db, $visiting);
 </head>
 <body>
 <div class="container rounded shadow">
+    <?php sideBarButton(); ?>
 	<div style="padding: 20px" class="row">
 	  <?php
 	  if ($user_info != null) {
@@ -67,8 +76,10 @@ $user_info = getUserInfo($db, $visiting);
 	  }
 
 	  // Show an edit button if we are on our own profile page.
-	  if ($visiting == $_SESSION["username"]) {
-		  echo '<form method="post" style="display: flex; justify-content: center">' . mat_but_submit('', 'Edit profile', 'edit', 'edit', '', '', false) . '</form>';
+	  if ($visiting == $_SESSION["username"])
+      {
+          echo '<form method="post" style="display: flex; justify-content: center">' . mat_but_submit('', 'Edit profile', 'edit', 'edit', '', '', false) . '</form>';
+		  echo '<form method="post" style="display: flex; justify-content: center">' . mat_but_submit('', 'Add Friends', 'friend', 'edit', '', '', false) . '</form>';
 	  }
 	  ?>
 	</div>
