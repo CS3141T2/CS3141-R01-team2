@@ -1,10 +1,19 @@
-<!DOCTYPE html>
-<html>
 <?php
-include '/home/techzrla/tmt.php';
+include '../sidebar.php';
 session_start();
+
+if (!isset($_SESSION["username"])) {
+    header("Location: /login");
+    die();
+}
+
 ?>
+<html>
 <head>
+    <?php
+    echo head_goodies();
+    echo sideBar($_SESSION["username"]);
+    ?>
     <title>Interest Survey; Tech Meets Tech</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
@@ -16,24 +25,11 @@ session_start();
 <body>
 <br>
 <div class="container" style="width:600px;">
+    <?php sideBarButton(); ?>
     <h2 align="center">Select your Interests!</h2>
     <br>
-    <form method="post" id="hobby_form">
+    <form method="post" id="hobby_form" name="hobby_form" action="surveyUpdate.php">
         <div class="form-group">
-            <!--
-            <label>What are your favorite hobbies?</label>
-            <select id="hobby" name="hobby[]" multiple class="form-control" >
-                <option value="Video_Games">Video Games</option>
-                <option value="Sports">Sports</option>
-                <option value="Music">Music</option>
-                <option value="Running">Running</option>
-                <option value="Hiking">Hiking</option>
-                <option value="Movies">Movies</option>
-                <option value="Travel">Travel</option>
-                <option value="Cooking">Cooking</option>
-            </select>
-            <br><br>
-            -->
             <?php
             $table = "surveyQuestions";
             $result1 = getAllFromTable($table);
@@ -41,7 +37,7 @@ session_start();
                 while ($row1 = $result1->fetch_assoc()) {
                     $qNum = $row1["questionID"];
                     echo sprintf('<label>%s</label>
-            <select id="hobby%u" name="hobby[]" multiple class="form-control" >', $row1["questionText"], $qNum);
+            <select id="hobby%u" name="hobby%u[]" multiple class="form-control" >', $row1["questionText"], $qNum, $qNum);
                     $result2 = getAllInterests($qNum);
                     if ($result2->num_rows > 0) {
                         while ($row2 = $result2->fetch_assoc()) {
@@ -62,13 +58,8 @@ session_start();
                     </script><br><br>", $qNum);
                 }
             }
-
+            echo mat_but_submit('', 'Submit', '', 'done', '', '', false);
             ?>
-        </div>
-        <div class="form-group">
-            <form action="surveyUpdate.php">
-                <input type="submit" class="btn btn-info" name="submit" value="Submit">
-            </form>
         </div>
     </form>
     <br>

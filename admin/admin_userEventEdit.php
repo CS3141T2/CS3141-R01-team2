@@ -1,133 +1,174 @@
 <?php
-include '/home/techzrla/tmt.php';
+include '../tmt.php';
+include 'utils.php';
 session_start();
 
 // User is not logged in, go to login page
-if ($_SESSION['username'] == null) {
+if (!isset($_SESSION["username"])) {
     header("Location: /login");
     die();
+} // Else verify the use is an admin
+else if (isAdmin($_SESSION['username']) == false) {
+    header("LOCATION: /dashboard");
+    die();
 }
-else {
-    $db = db();
-    $perm = "admin";
-    $stmt = $db->prepare("select * from account where username = ? and permission = ? ");
-    $stmt->bind_param("ss", $_SESSION['username'], $perm);
-    $stmt->execute();
-    if($stmt->get_result()->num_rows == 0) {
-        header("Location: /dashboard");
-        die();
-    }
-}
-
 ?>
 <html>
-<style>
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-        background-color: whitesmoke;
-    }
-</style>
 <head>
+    <?php echo head_goodies(); ?>
     <title>User Editor; Tech Meets Tech</title>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-
 </head>
-<form action="index.php" method="post">
-    <input type="submit" value='Back' name='Back'>
-</form>
-<?php
-include 'utils.php';
-if (isset($_POST["addIndivEvent"])) {
-    $toInsert = $_POST["userHost"];
-    $toInsert1 = $_POST["indivEventToAdd"];
-    $toInsert2 = $_POST["indivDescription"];
-    $view = 5;
-    $table = "indiv_event";
-    if ($toInsert == null || $toInsert1 == null) {
-        echo "Field can't be null";
-    } else {
-        try {
-            $db = db();
-            $stmt = $db->prepare("INSERT INTO indiv_event(owner_id, name, description) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $toInsert, $toInsert1);
-            $stmt->execute();
-            echo "Event statement executed without errors";
-        } catch (Exception $e) {
-            echo 'Error: caught exception ', $e->getMessage(), '\n';
+<body>
+<div class="container">
+    <div class="col text-center" style="margin: 1em auto;">
+        <h2>Manage Individual Events</h2>
+        <?php
+        // Add individual event
+        if (isset($_POST["addIndivEvent"])) {
+            $toInsert = $_POST["userHost"];
+            $toInsert1 = $_POST["indivEventToAdd"];
+            $toInsert2 = $_POST["indivDescription"];
+            $view = 5;
+            $table = "indiv_event";
+            if ($toInsert == null || $toInsert1 == null) {
+                echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Fields can't be null</div>";
+            } else {
+                try {
+                    $db = db();
+                    $stmt = $db->prepare("INSERT INTO indiv_event(owner_id, name, description) VALUES (?, ?, ?)");
+                    $stmt->bind_param("sss", $toInsert, $toInsert1);
+                    $stmt->execute();
+                    if ($stmt->affected_rows > 0) {
+                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>User event added</div>";
+                    } else {
+                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not add user event</div>";
+                    }
+                } catch (Exception $e) {
+                    echo 'Error: caught exception ', $e->getMessage(), '\n';
+                }
+            }
         }
-    }
-}
-
-if (isset($_POST["removeIndivEvent"])) {
-    $toInsert = $_POST["indivEventToRemove"];
-    $view = 5;
-    $table = "indiv_event";
-    if ($toInsert == null) {
-        echo "Field can't be null";
-    } else {
-        try {
-            $db = db();
-            $stmt = $db->prepare("DELETE FROM indiv_event WHERE id=?");
-            $stmt->bind_param("i", $toInsert);
-            $stmt->execute();
-            echo "Event removal statement executed successfully";
-        } catch (Exception $e) {
-            echo 'Error: caught exception ', $e->getMessage(), '\n';
+        // Remove individual event
+        if (isset($_POST["removeIndivEvent"])) {
+            $toInsert = $_POST["indivEventToRemove"];
+            $view = 5;
+            $table = "indiv_event";
+            if ($toInsert == null) {
+                echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Field can't be null</div>";
+            } else {
+                try {
+                    $db = db();
+                    $stmt = $db->prepare("DELETE FROM indiv_event WHERE id=?");
+                    $stmt->bind_param("i", $toInsert);
+                    $stmt->execute();
+                    if ($stmt->affected_rows > 0) {
+                        echo "<div class='alert alert-success' style='max-width: 50%; margin: 1em auto'>User event deleted</div>";
+                    } else {
+                        echo "<div class='alert alert-danger' style='max-width: 50%; margin: 1em auto'>Did not delete user event</div>";
+                    }
+                } catch (Exception $e) {
+                    echo 'Error: caught exception ', $e->getMessage(), '\n';
+                }
+            }
         }
-    }
-}
 
-// User event management script
-echo "Add User host + event name + description (optional):"
-?>
-<form action="admin_userEventEdit.php" method="post">
-    <input type="text" id="indivEventToAdd" name="userHost">
-    <input type="text" id="indivEventToAdd" name="indivEventToAdd">
-    <input type="text" id="indivDescription" name="indivDescription">
-    <input type="submit" value="Add User Event" name="addIndivEvent">
-</form>
-<?php
-echo "Remove User Event (ID):"
-?>
-<form action="admin_userEventEdit.php" method="post">
-    <input type="text" id="indivEventToRemove" name="indivEventToRemove">
-    <input type="submit" value="Remove User Event" name="removeIndivEvent">
-</form>
-<table class="table table-striped">
-    <thead class="thead-dark">
-    <tr>
-        <th>id</th>
-        <th>owner_id</th>
-        <th>date</th>
-        <th>location</th>
-        <th>name</th>
-        <th>type</th>
-        <th>description</th>
-    </tr>
+        ?>
 
-<?php
-$table = "indiv_event";
-$result = getAllFromTable($table);
-while ($row = $result->fetch_assoc()) {
-    echo sprintf('
+        <form action="index.php" method="post">
+            <?php echo mat_but_submit('', 'Back', 'Back', 'keyboard_return', '', '', false); ?>
+        </form>
+    </div>
+    <!-- Add individual event table -->
+    <div class="col text-center" style="max-width: 50em; margin: auto">
+        <h5>Adding User Event:</h5>
+        <table class='table table-bordered text-center' id='table'>
+            <thead>
+            <tr>
+                <th>User</th>
+                <th>Event name</th>
+                <th>Description (Optional)</th>
+                <th>Submit</th>
+            </tr>
+            </thead>
+            <tbody>
+            <form method="post">
+                <tr>
+                    <td style="width: 25%;">
+                        <input type="text" id="indivEventToAdd" name="userHost">
+                    </td>
+                    <td style="width: 25%;">
+                        <input type="text" id="indivEventToAdd" name="indivEventToAdd">
+                    </td>
+                    <td style="width: 25%;">
+                        <input type="text" id="indivDescription" name="indivDescription">
+                    </td>
+                    <td>
+                        <?php echo mat_but_submit('', 'Add Event', 'addIndivEvent', 'event_available', '', '', false); ?>
+                    </td>
+                </tr>
+            </form>
+            </tbody>
+        </table>
+    </div>
+    <!-- Remove individual event table -->
+    <div class="col text-center" style="max-width:30em; margin: auto">
+        <h5>Removing User Event:</h5>
+        <table class='table table-bordered text-center' id='table'>
+            <thead>
+            <tr>
+                <th>Event name</th>
+                <th>Submit</th>
+            </tr>
+            </thead>
+            <tbody>
+            <form method="post">
+                <tr>
+                    <td style="width: 50%;">
+                        <input type="text" id="indivEventToRemove" name="indivEventToRemove">
+                    </td>
+                    <td>
+                        <?php echo mat_but_submit('', 'Remove Event', 'removeIndivEvent', 'event_busy', '', '', false); ?>
+                    </td>
+                </tr>
+            </form>
+            </tbody>
+        </table>
+    </div>
+    <!-- indiv_event table -->
+    <div class="col text-center" style="max-width: 50em; margin: 1em auto">
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>id</th>
+                <th>owner_id</th>
+                <th>date</th>
+                <th>location</th>
+                <th>name</th>
+                <th>type</th>
+                <th>description</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php
+            $table = "indiv_event";
+            $result = getAllFromTable($table);
+            while ($row = $result->fetch_assoc()) {
+                echo sprintf('
                     <tr>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
-                        <th>%s</th>
+                        <td>%s</td>
+                        <td>%s</td>
+                        <td>%s</td>
+                        <td>%s</td>
+                        <td>%s</td>
+                        <td>%s</td>
+                        <td>%s</td>
                     </tr>
                     ', $row["id"], $row["owner_id"], $row["date"], $row["location"], $row["name"], $row["type"], $row["description"]);
-}
-echo "<table>";
-?>
-    </thead>
-</table>
+            }
+            ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

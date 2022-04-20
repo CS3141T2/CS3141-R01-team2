@@ -1,5 +1,5 @@
 <?php
-include '../tmt.php';
+include '../sidebar.php';
 session_start();
 $db = db();
 
@@ -45,9 +45,13 @@ if ((($_POST["nameEvent"]) != "") && (($_POST["typeSelect"]) != "") && (($_POST[
 
 <html lang="en-US">
 <head>
-	<?php echo head_goodies(); ?>
+	<?php
+    echo head_goodies();
+    echo sideBar($_SESSION["username"]);
+    ?>
 	<title>Events</title>
 </head>
+<?php sideBarButton(); ?>
 <div class="col text-center">
 	<h1>Create an Individual Event</h1>
 	<form method="post" action="indiv_event_create.php">
@@ -65,7 +69,7 @@ if ((($_POST["nameEvent"]) != "") && (($_POST["typeSelect"]) != "") && (($_POST[
 		</label>
 		<label>
 			Event Date:
-			<input class="form-control" type="date" name="date">
+			<input class="form-control" type="datetime-local" name="date">
 		</label>
 		<label>
 			Location:

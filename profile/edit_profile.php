@@ -17,7 +17,15 @@ $result = $stmt->get_result();
 $preexisting = $result->fetch_assoc();
 
 // If POST parameters are set, assign data into database
-if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && isset($_POST["color"]) && isset($_POST["twitter_username"])) {
+if (
+				isset($_POST["major"]) &&
+				isset($_POST["year"]) &&
+				isset($_POST["bio"]) &&
+				isset($_POST["color"]) &&
+				isset($_POST["twitter_username"]) &&
+				isset($_POST["snapchat_username"]) &&
+				isset($_POST["instagram_username"])
+) {
 	$goodColor = "";
 	// Strip off the pound sign if they enter it.
 	if (substr($_POST["color"], 0, 1) == "#") {
@@ -25,8 +33,8 @@ if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && i
 	} else {
 		$goodColor = $_POST["color"];
 	}
-	$stmt = $db->prepare("UPDATE `account` SET major=?, year=?, profile_description=?, color=?, twitter_username=? WHERE username=?");
-	$stmt->bind_param("sissss", $_POST["major"], $_POST["year"], $_POST["bio"], $goodColor, $_POST["twitter_username"], $_SESSION["username"]);
+	$stmt = $db->prepare("UPDATE `account` SET major=?, year=?, profile_description=?, color=?, twitter_username=?, snapchat_username=?, instagram_username=? WHERE username=?");
+	$stmt->bind_param("sissssss", $_POST["major"], $_POST["year"], $_POST["bio"], $goodColor, $_POST["twitter_username"],$_POST["snapchat_username"],$_POST["instagram_username"], $_SESSION["username"]);
 	$stmt->execute();
 	header("Location: /profile/index.php?username=" . $_SESSION["username"]); // Take them to their profile page
 	die();
@@ -85,6 +93,26 @@ if (isset($_POST["major"]) && isset($_POST["year"]) && isset($_POST["bio"]) && i
 						<div class="input-group-text">@</div>
 					</div>
 					<input class="form-control" name="twitter_username" type="text" maxlength="15" value="<?php echo $preexisting["twitter_username"]; ?>" placeholder="Username">
+				</div>
+			</label>
+			<br>
+			<label>
+				Snapchat:
+				<div class="input-group mb-2 mr-sm-2">
+					<div class="input-group-prepend">
+						<div class="input-group-text">@</div>
+					</div>
+					<input class="form-control" name="snapchat_username" type="text" maxlength="30" value="<?php echo $preexisting["snapchat_username"]; ?>" placeholder="Username">
+				</div>
+			</label>
+			<br>
+			<label>
+				Instagram:
+				<div class="input-group mb-2 mr-sm-2">
+					<div class="input-group-prepend">
+						<div class="input-group-text">@</div>
+					</div>
+					<input class="form-control" name="instagram_username" type="text" maxlength="30" value="<?php echo $preexisting["instagram_username"]; ?>" placeholder="Username">
 				</div>
 			</label>
 		</div>
