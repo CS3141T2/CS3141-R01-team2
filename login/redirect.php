@@ -1,13 +1,20 @@
 <?php /** @noinspection PhpUndefinedClassInspection */
 session_start();
 require_once '../vendor/autoload.php';
-$config = parse_ini_file("/home/techzrla/creds.ini");
-
+$config = parse_ini_file("../google.ini");
 // create Client Request to access Google API
 $client = new Google_Client();
 $client->setClientId($config["g_client_id"]);
 $client->setClientSecret($config["g_client_secret"]);
-$client->setRedirectUri($config["g_redirect_uri"]);
+
+// Determine what the redirect should be
+$preg_match = preg_match("/dev\.techmeetstech\.xyz/", $_SERVER['HTTP_HOST']);
+if ($preg_match == 1) {
+	$client->setRedirectUri($config["g_redirect_uri_dev"]);
+} else {
+	$client->setRedirectUri($config["g_redirect_uri_prod"]);
+}
+
 $client->addScope("email");
 $client->addScope("profile");
 $client->setHostedDomain("mtu.edu");
