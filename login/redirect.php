@@ -1,7 +1,7 @@
 <?php /** @noinspection PhpUndefinedClassInspection */
 session_start();
 require_once '../vendor/autoload.php';
-$config = parse_ini_file("../google.ini");
+$config = parse_ini_file("/home/techzrla/creds.ini");
 // create Client Request to access Google API
 $client = new Google_Client();
 $client->setClientId($config["g_client_id"]);

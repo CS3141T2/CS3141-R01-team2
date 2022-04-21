@@ -3,7 +3,6 @@ include '../tmt.php';
 include 'utils.php';
 require_once '../vendor/autoload.php';
 $config = parse_ini_file("/home/techzrla/creds.ini");
-$g_config = parse_ini_file("../google.ini");
 session_start();
 $db = db();
 
@@ -14,15 +13,15 @@ if ($_SESSION["username"] != null) { // User is logged in, go to dashboard
 
 // create Client Request to access Google API
 $client = new Google_Client();
-$client->setClientId($g_config["g_client_id"]);
-$client->setClientSecret($g_config["g_client_secret"]);
+$client->setClientId($config["g_client_id"]);
+$client->setClientSecret($config["g_client_secret"]);
 
 // Determine what the redirect should be
 $preg_match = preg_match("/dev\.techmeetstech\.xyz/", $_SERVER['HTTP_HOST']);
 if ($preg_match) {
-	$client->setRedirectUri($g_config["g_redirect_uri_dev"]);
+	$client->setRedirectUri($config["g_redirect_uri_dev"]);
 } else {
-	$client->setRedirectUri($g_config["g_redirect_uri_prod"]);
+	$client->setRedirectUri($config["g_redirect_uri_prod"]);
 }
 
 $client->addScope("email");
