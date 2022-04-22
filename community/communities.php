@@ -69,7 +69,7 @@ function allCommunities(mysqli $db, string $username): void
             $club = $row["name"];
             echo sprintf('<tr><td>%s</td><td>%s</td><td>%s</td>', $club, $row["leader"], $row["count"]);
             echo sprintf('<td><form method="post">%s</form></td>', mat_but_submit('', "$club Events", "event", "calendar_month", "", "$club", false));
-            if ($row["joined"] == "Yes") {
+            if ($row["joined"]) {
                 isLeader($db, $club);
             } else {
                 echo sprintf('<td><form method="post">%s</form></td>', mat_but_submit("Join $club", "$club", 'join', 'login', '', "join-$club", false));
