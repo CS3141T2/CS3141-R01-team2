@@ -22,14 +22,11 @@ if (isset($_POST['find'])) {
     die();
 }
 
-// If button is clicked, add myself to community
-if (isset($_POST['join'])) {
-    header("Location: /community/");
-    $value = $_POST['join'];
-    $add = $db->prepare("call addToCommunity(?, ?)");
-    $add->bind_param("ss", $_SESSION["username"], $value);
-    $add->execute();
-    die();
+// Wanting to view events for community
+if (isset($_POST['event'])) {
+    $value = trim(preg_split('/\s+/', $_POST['event'])[0]);
+    header("Location: /community/events.php?comm=$value");
+    die;
 }
 
 // Join/leave community handler
@@ -60,7 +57,7 @@ function buildTable(mysqli $db): void
                 memberJoin AS (
                     SELECT * FROM member WHERE account_name= ?
                 )
-                SELECT name, leader, count, IF(IFNULL(t1.name, 'No') = 'No', 'No', 'Yes') AS joined
+                SELECT name, leader, count, t1.name AS joined
                     FROM communityInfo
                     LEFT OUTER JOIN memberJoin AS t1 USING (name)
                     ORDER BY name;");
