@@ -42,10 +42,10 @@ function commsByInterest(mysqli $db, string $username): void
 	SELECT DISTINCT community.name,
 	                community.leader,
 	                count.count,
-	                IF(IFNULL(user.name, 'No') = 'No', 'No', 'Yes') AS joined
+	                t1.name AS joined
 	FROM community
 	         NATURAL JOIN count
-	         LEFT OUTER JOIN user USING (name)
+	         LEFT OUTER JOIN user as t1 USING (name)
 	WHERE name IN (SELECT commInterests.c_name
 	               FROM interests
 	                        NATURAL JOIN commInterests
@@ -73,7 +73,7 @@ function commsByInterest(mysqli $db, string $username): void
             echo sprintf('<tr><td>%s</td><td>%s</td><td><form method="post">%s</form></td>',
                 $row["name"], $row["leader"], mat_but_submit('', "$club Events", "event", "calendar_month", "", "$club", false)
             );
-            if ($row["joined"] == "Yes") {
+            if ($row["joined"]) {
                 isLeader($db, $club);
             } else {
                 echo sprintf('<td><form method="post">%s</form></td>', mat_but_submit("Join $club", "$club", 'join', 'login', '', "join-$club", false));

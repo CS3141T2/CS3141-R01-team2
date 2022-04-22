@@ -16,6 +16,14 @@ if (isset($_POST["joinEvent"])) {
     $stmt->bind_param("ss", $value, $_SESSION["username"]);
     $stmt->execute();
 }
+
+// Leave event
+if (isset($_POST["leaveEvent"])) {
+    $value = $_POST["leaveEvent"];
+    $stmt = $db->prepare("DELETE FROM communityAttend where id = ? and username = ?");
+    $stmt->bind_param("ss", $value, $_SESSION["username"]);
+    $stmt->execute();
+}
 /**
  * Returns upcoming events
  * @param mysqli $db    Database connection
@@ -23,10 +31,11 @@ if (isset($_POST["joinEvent"])) {
  */
 function recentEvents(mysqli $db)
 {
-	$stmt = $db->prepare("SELECT name, type, date, location, id
-                          FROM event
+	$stmt = $db->prepare("SELECT name, type, date, location, event.id, t1.username as joined
+                          FROM event left outer join (select * from communityAttend where username = ?) as t1 using (id)
                           ORDER BY ts DESC
                           LIMIT 10");
+    $stmt->bind_param("s", $_SESSION["username"]);
 	$stmt->execute();
 	$data = $stmt->get_result();
 
@@ -48,7 +57,12 @@ function recentEvents(mysqli $db)
 			echo '</td>';
 			echo '<td>' . $row["location"] . '</td>';
 			echo '<td><form method="post">';
-            echo mat_but_submit('Join Event', $id, 'joinEvent', 'event_available', '', '', false);
+            if ($row["joined"] == null) {
+                echo mat_but_submit('Join event', $id, 'joinEvent', 'event_available', '', '', false);
+            }
+            else {
+                echo mat_but_submit('Leave event', $id, 'leaveEvent', 'event_busy', '', '', false);
+            }
             echo '</form></td>';
 			echo '</tr>';
 		}
@@ -58,11 +72,12 @@ function recentEvents(mysqli $db)
 
 function upcomingEvents($db)
 {
-    $stmt2 = $db->prepare("SELECT name, type, date, location, id
-                          FROM event
+    $stmt2 = $db->prepare("SELECT name, type, date, location, event.id, t1.username as joined
+                          FROM event left outer join (select * from communityAttend where username = ?) as t1 using (id)
                           where date > NOW()
                           ORDER BY date                          
                           LIMIT 10");
+    $stmt2->bind_param("s", $_SESSION["username"]);
     $stmt2->execute();
     $data = $stmt2->get_result();
 
@@ -86,9 +101,14 @@ function upcomingEvents($db)
             echo '<td>' . substr($row["date"], 11,5);
             echo '</td>';
             echo '<td>' . $row["location"] . '</td>';
-            echo '<td>';
-            echo mat_but_submit('Join event', $id, 'joinEvent', 'event_available', '', '', false);
-            echo '</td>';
+            echo '<td><form method="post">';
+            if ($row["joined"] == null) {
+                echo mat_but_submit('Join event', $id, 'joinEvent', 'event_available', '', '', false);
+            }
+            else {
+                echo mat_but_submit('Leave event', $id, 'leaveEvent', 'event_busy', '', '', false);
+            }
+            echo '</form></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';

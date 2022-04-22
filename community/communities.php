@@ -46,7 +46,7 @@ function allCommunities(mysqli $db, string $username): void
             memberJoin AS (
             SELECT * FROM member WHERE account_name=?
         )
-        SELECT name, leader, count, IF(IFNULL(t1.name, 'No') = 'No', 'No', 'Yes') AS joined 
+        SELECT name, leader, count, t1.name AS joined 
             FROM communityInfo 
             LEFT OUTER JOIN memberJoin AS t1 USING (name)
             ORDER BY name");

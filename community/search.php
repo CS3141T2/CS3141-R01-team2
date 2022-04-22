@@ -85,7 +85,7 @@ function buildTable(mysqli $db): void
                     echo sprintf("<td><form method='post'>%s</form></td>",
                         mat_but_submit('', "$club Events", "event", "calendar_month", "", "$club", false)
                     );
-                    if ($row["joined"] == "Yes") {
+                    if ($row["joined"]) {
                         isLeader($db, $club);
                     } else {
                         echo sprintf('<td><form method="post">%s</form></td>', mat_but_submit("Join $club", "$club", 'join', 'login', '', "join-$club", false));
@@ -117,7 +117,7 @@ function buildTable(mysqli $db): void
 </head>
 <body>
 <div class="container">
-    <?php sideBarButton(); ?>
+    <?php sideBarButton();?>
     <div class="col text-center" style="margin: 1em">
         <h1>Communities</h1>
         <!-- Buttons for main menu & interests -->

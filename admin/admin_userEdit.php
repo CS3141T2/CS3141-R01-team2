@@ -1,5 +1,5 @@
 <?php
-include '../tmt.php';
+include '../sidebar.php';
 include 'utils.php';
 session_start();
 
