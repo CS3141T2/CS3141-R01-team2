@@ -36,6 +36,7 @@ function sideBar($user): string
 
         <div id="mySidenav" class="sidenav">
             <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a href="/dashboard">Dashboard</a>
             <a href="/profile">Profile</a>
             <a href="/community">Communities</a>
             <a href="/events/event.php">Events</a>
