@@ -1,5 +1,5 @@
 <?php
-include '/home/techzrla/tmt.php';
+include '../tmt.php';
 session_start();
 $db = db();
 
@@ -17,7 +17,7 @@ if (isset($_POST["backToMain"])) {
 <!doctype html>
 <html lang="en-US">
 <head>
-    <?php echo bootstrap(); ?>
+    <?php echo head_goodies(); ?>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
@@ -26,7 +26,7 @@ if (isset($_POST["backToMain"])) {
             <h1>Events</h1>
             <form method="post" action="event.php">
                 <div class="col text-center">
-                    <input class="btn btn-primary" type="submit" name="backToMain" value="Back to Main Event Page">
+                    <?php echo mat_but_submit('', 'backToMain', 'backToMain', 'keyboard_return', '', '', false); ?>
                 </div>
             </form>
             <br>

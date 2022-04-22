@@ -9,12 +9,33 @@ if ($_SESSION["username"] == null) {
 	die();
 }
 
-function recentEvents($db)
+// Join event
+if (isset($_POST["joinEvent"])) {
+    $value = $_POST["joinEvent"];
+    $stmt = $db->prepare("INSERT INTO communityAttend values (?, ?)");
+    $stmt->bind_param("ss", $value, $_SESSION["username"]);
+    $stmt->execute();
+}
+
+// Leave event
+if (isset($_POST["leaveEvent"])) {
+    $value = $_POST["leaveEvent"];
+    $stmt = $db->prepare("DELETE FROM communityAttend where id = ? and username = ?");
+    $stmt->bind_param("ss", $value, $_SESSION["username"]);
+    $stmt->execute();
+}
+/**
+ * Returns upcoming events
+ * @param mysqli $db    Database connection
+ * @return void
+ */
+function recentEvents(mysqli $db)
 {
-	$stmt = $db->prepare("SELECT name, type, date, location, id
-                          FROM event
+	$stmt = $db->prepare("SELECT name, type, date, location, event.id, t1.username as joined
+                          FROM event left outer join (select * from communityAttend where username = ?) as t1 using (id)
                           ORDER BY ts DESC
-                          LIMIT 15");
+                          LIMIT 10");
+    $stmt->bind_param("s", $_SESSION["username"]);
 	$stmt->execute();
 	$data = $stmt->get_result();
 
@@ -28,19 +49,71 @@ function recentEvents($db)
             <th scope="col">Sign Up</th>
             </thead><tbody>';
 		while ($row = $data->fetch_assoc()) {
+            $id = $row["id"];
 			echo '<tr>';
 			echo '<td>' . $row["name"] . '</td>';
 			echo '<td>' . $row["type"] . '</td>';
 			echo '<td>' . substr($row["date"], 0, 10);
 			echo '</td>';
 			echo '<td>' . $row["location"] . '</td>';
-			echo '<td>-sign up button maybe-</td>';
+			echo '<td><form method="post">';
+            if ($row["joined"] == null) {
+                echo mat_but_submit('Join event', $id, 'joinEvent', 'event_available', '', '', false);
+            }
+            else {
+                echo mat_but_submit('Leave event', $id, 'leaveEvent', 'event_busy', '', '', false);
+            }
+            echo '</form></td>';
 			echo '</tr>';
 		}
 		echo '</tbody></table>';
 	}
 }
 
+function upcomingEvents($db)
+{
+    $stmt2 = $db->prepare("SELECT name, type, date, location, event.id, t1.username as joined
+                          FROM event left outer join (select * from communityAttend where username = ?) as t1 using (id)
+                          where date > NOW()
+                          ORDER BY date                          
+                          LIMIT 10");
+    $stmt2->bind_param("s", $_SESSION["username"]);
+    $stmt2->execute();
+    $data = $stmt2->get_result();
+
+    if ($data->num_rows > 0) {
+        echo '<table class="table table-bordered text-center">
+            <thead>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Date</th>
+            <th scope="col">Time</th>
+            <th scope="col">Where</th>
+            <th scope="col">Sign Up</th>
+            </thead><tbody>';
+        while ($row = $data->fetch_assoc()) {
+            $id = $row["id"];
+            echo '<tr>';
+            echo '<td>' . $row["name"] . '</td>';
+            echo '<td>' . $row["type"] . '</td>';
+            echo '<td>' . substr($row["date"], 0, 10);
+            echo '</td>';
+            echo '<td>' . substr($row["date"], 11,5);
+            echo '</td>';
+            echo '<td>' . $row["location"] . '</td>';
+            echo '<td><form method="post">';
+            if ($row["joined"] == null) {
+                echo mat_but_submit('Join event', $id, 'joinEvent', 'event_available', '', '', false);
+            }
+            else {
+                echo mat_but_submit('Leave event', $id, 'leaveEvent', 'event_busy', '', '', false);
+            }
+            echo '</form></td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+    }
+}
 ?>
 
 <html lang="en-US">
@@ -59,18 +132,17 @@ function recentEvents($db)
 	     alt="Tech Meets Tech logo">
 </div>
 <!-- Use any element to open the sidenav -->
-<span style="position: absolute;left: 10px;top: 5px" onclick="openNav()">
-	<button type="submit" class="mt-2 mdc-button mdc-button--raised tmt-button" value="open sidebar" id="add-btn"
-	        style="min-width: 0 !important; text-align: center">
-	  <div class="mdc-button__ripple"></div>
-	  <i class="material-icons mdc-button__icon" aria-hidden="true" style="margin: 0 !important;">menu</i>
-	</button>
-</span>
+
 <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
 <div class="container">
+    <?php sideBarButton(); ?>
 	<div id="recent events" style="text-align: center">
 		<h3> &mdash; Latest Events &mdash; </h3>
-	  <?php recentEvents($db); ?>
+	    <?php recentEvents($db); ?>
+        <br>
+        <h3> &mdash; Upcoming Events &mdash; </h3>
+        <?php upcomingEvents($db); ?>
+        <br><br><br><br><br><br><br><br><br>
 	</div>
 </div>
 </body>

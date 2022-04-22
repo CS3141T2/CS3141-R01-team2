@@ -87,7 +87,7 @@ function mat_but_submit(string $display, string $value, string $name, string $ic
 
 	/** @noinspection HtmlUnknownAttribute */
 	return sprintf(
-		'<button type="submit" class="mdc-button mdc-button--raised" name="%s" id="%s" style="%s" value="%s" %s>
+		'<button type="submit" class="mdc-button mdc-button--raised" name="%s" id="%s" style="%s; color: #000000; background-color: #ffcd00;" value="%s" %s>
 					<div class="mdc-button__ripple"></div>
 					<i class="material-icons mdc-button__icon" aria-hidden="true">%s</i>
 					%s
