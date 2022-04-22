@@ -23,8 +23,32 @@ if (is_null($comm)) {
     die();
 }
 
-// Join/leave community handler
-echo communityHandle($db);
+// First test the get data is a valid community name
+$stmt = $db->prepare("SELECT * FROM community WHERE name = ?");
+$stmt->bind_param("s", $comm);
+$stmt->execute();
+if ($stmt->get_result()->num_rows == 0) {
+    header("Location: /community");
+    die();
+}
+
+// Joining event
+if (isset($_POST["joinEvent"])) {
+    header("LOCATION: /community");
+    $stmt = $db->prepare("INSERT INTO communityAttend values(?,?)");
+    $stmt->bind_param("ss", $_POST["joinEvent"], $_SESSION["username"]);
+    $stmt->execute();
+    die();
+}
+
+// Leaving event
+if (isset($_POST["leaveEvent"])) {
+    header("LOCATION: /community");
+    $stmt = $db->prepare("DELETE FROM communityAttend where id = ? and username = ?");
+    $stmt->bind_param("ss", $_POST["leaveEvent"], $_SESSION["username"]);
+    $stmt->execute();
+    die();
+}
 
 if (isset($_POST['delete'])) {
     header("LOCATION: /community");
@@ -33,15 +57,6 @@ if (isset($_POST['delete'])) {
     $stmt = $db->prepare("DELETE from event where id = ?");
     $stmt->bind_param("s", $value);
     $stmt->execute();
-    die();
-}
-
-// First test the get data is a valid community name
-$stmt = $db->prepare("SELECT * FROM community WHERE name = ?");
-$stmt->bind_param("s", $comm);
-$stmt->execute();
-if ($stmt->get_result()->num_rows == 0) {
-    header("Location: /community");
     die();
 }
 
@@ -82,16 +97,15 @@ function getAttendees(mysqli $db, string $id, bool $isLeader): void
     } else {
         echo "<td><p>Nobody attended :(</p></td>";
     }
-    echo "</td>";
 
     $stmt = $db->prepare("SELECT * from communityAttend where id = ? and username = ?");
     $stmt->bind_param("ss", $id, $_SESSION["username"]);
     $stmt->execute();
     echo "<td><form method='post'>";
     if ($stmt->get_result()->num_rows > 0) {
-        echo mat_but_submit('Leave', $id, 'leave', 'logout', '', '', false);
+        echo mat_but_submit('Leave', $id, 'leaveEvent', 'logout', '', '', false);
     } else {
-        echo mat_but_submit('Join', $id, 'join', 'groups', '', '', false);
+        echo mat_but_submit('Join', $id, 'joinEvent', 'groups', '', '', false);
     }
     echo "</form></td>";
 

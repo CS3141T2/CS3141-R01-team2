@@ -146,6 +146,19 @@ function userMembershipsList(mysqli $db, array $user_info): string
 	return $html . "</ul>";
 }
 
+function userFriendsList(mysqli $db, array $user_info): string {
+	$html = "<ul>";
+	$stmt = $db->prepare("SELECT * FROM `friend` WHERE user1=?");
+	$stmt->bind_param("s", $user_info["username"]);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	while ($friendship = $result->fetch_assoc()) {
+			$html .= sprintf('<li><a href="index.php?username=%s">%s</a></li>', $friendship["user2"], $friendship["user2"]);
+	}
+	$html .= "</ul>";
+	return $html;
+}
+
 function userSocials(array $user_info): string
 {
 	$html = "";

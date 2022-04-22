@@ -1,5 +1,5 @@
 <?php
-include '../sidebar.php';
+include '../tmt.php';
 session_start();
 $db = db();
 
@@ -17,15 +17,11 @@ if (isset($_POST["backToMain"])) {
 <!doctype html>
 <html lang="en-US">
 <head>
-    <?php
-    echo head_goodies();
-    echo sideBar($_SESSION["username"]);
-    ?>
+    <?php echo head_goodies(); ?>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <?php sideBarButton(); ?>
         <div class="col text-center" style="margin: 1em">
             <h1>Events</h1>
             <form method="post" action="event.php">

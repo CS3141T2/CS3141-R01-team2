@@ -186,7 +186,7 @@ else if (isAdmin($_SESSION['username']) == false) {
                             <input type="text" id="interestToAdd" name="interestToAdd">
                         </td>
                         <td style="width: 35%;">
-                            <input type="text" id="leaderToAdd" name="leaderToAdd">
+                            <input type="text" id="questionID" name="questionID">
                         </td>
                         <td>
                             <?php echo mat_but_submit('', 'Add Interest', 'addInterest', 'interests', '', '', false); ?>

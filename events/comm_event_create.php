@@ -3,7 +3,7 @@ include '../sidebar.php';
 session_start();
 $db = db();
 
-if ($_SESSION["username"] == null) {
+if (!isset($_SESSION["username"])) {
 	header("Location: /login/index.php");
 	die();
 }
