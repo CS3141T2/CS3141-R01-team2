@@ -57,15 +57,15 @@ if ((($_POST["nameEvent"]) != "") && (($_POST["typeSelect"]) != "") && (($_POST[
     <form method="post" action="indiv_event_create.php">
         <label>
             Name of Event:
-            <input class="form-control" type="text" name="nameEvent" maxlength="10">
+            <input class="form-control" type="text" name="nameEvent" maxlength="50">
         </label>
         <label>
             Type of Event:
-            <input class="form-control" type="text" name="typeSelect" maxlength="15">
+            <input class="form-control" type="text" name="typeSelect" maxlength="255">
         </label>
         <label>
             Description of Event:
-            <input class="form-control" type="text" name="description" maxlength="100">
+            <input class="form-control" type="text" name="description" maxlength="1288">
         </label>
         <label>
             Event Date:
@@ -73,7 +73,7 @@ if ((($_POST["nameEvent"]) != "") && (($_POST["typeSelect"]) != "") && (($_POST[
         </label>
         <label>
             Location:
-            <input class="form-control" type="text" name="location" maxlength="20">
+            <input class="form-control" type="text" name="location" maxlength="50">
         </label>
         <label>
             <div class="form-check form-switch">

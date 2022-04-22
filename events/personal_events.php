@@ -9,7 +9,7 @@ if (!isset($_SESSION['username'])) {
 }
 
 if (isset($_POST["delete"])) {
-    $eventId = $_POST["id"];
+    $eventId = $_POST["delete"];
     $delete = $db->prepare("DELETE FROM indiv_event WHERE id=?");
     $delete->bind_param("i", $eventId);
     $delete->execute();
@@ -77,12 +77,9 @@ if (isset($_POST["delete"])) {
                         }
                         if ($index == 5) {
                             $id = $items["id"];
-                            echo "<td>
-                                                    <form method='post' action='/events/personal_events.php'>
-                                                        <input type='hidden' value=$id name='id'>
-                                                        <input class='btn btn-primary btn-sm' type='submit' value='Delete' name='delete'</input>
-                                                    </form>
-                                                </td></tr>";
+														echo "<td><form method='post'>";
+														echo mat_but_submit('Delete', $id, 'delete', 'delete', '', '', false);
+                            echo "</form></td>";
                         }
                         $index++;
                     }

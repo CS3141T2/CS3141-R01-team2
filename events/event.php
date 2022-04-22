@@ -139,7 +139,7 @@ function printTable($rows, $table, $db)
                         </td>
                     </tr>";
 				} else {
-					echo "<td><p>Nobody attended :(</p></td></tr>";
+					echo "<td><p style='white-space: nowrap'>Nobody attended :(</p></td></tr>";
 				}
 			}
 			$count++;

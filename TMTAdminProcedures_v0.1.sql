@@ -2,7 +2,7 @@ DELIMITER //
 
 create procedure addUser (email varchar(30)) 
 begin 
-insert into account(email) values (email); 
+insert into account(username) values (username);
 end //
 
 create procedure addCommunity (name varchar(30), leader varchar(30))
